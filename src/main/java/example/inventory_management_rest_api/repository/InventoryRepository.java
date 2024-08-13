@@ -7,12 +7,13 @@ import java.util.List;
 
 /**
  * This interface extends JpaRepository for CRUD methods and custom finder methods.
+ * JpaRepository supports save(), findOne(), findById(), findAll(), count(), delete(), and deleteById().
  */
 
 public interface InventoryRepository extends JpaRepository<Inventory, Long> {
 
     /**
-     * Get Inventory items by whether it is on sales.
+     * Custom finder: Get Inventory items by whether it is on sales.
      *
      * @param onSale the status of the item
      * @return list of inventory items of the specified sale status
@@ -20,7 +21,7 @@ public interface InventoryRepository extends JpaRepository<Inventory, Long> {
     List<Inventory> findByOnSale(boolean onSale);
 
     /**
-     * Get Inventory items whose name contains specified text.
+     * Custom finder: Get Inventory items whose name contains specified text.
      *
      * @param name text to search in the Inventory item name
      * @return list of inventory items including the specified text in their names
