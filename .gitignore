@@ -57,3 +57,5 @@ build/
 hs_err_pid*
 replay_pid*
 
+# Mac Finder related
+*.DS_Store
