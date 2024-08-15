@@ -2,6 +2,7 @@ package example.inventory_management_rest_api.repository;
 
 import example.inventory_management_rest_api.model.Inventory;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
@@ -10,6 +11,7 @@ import java.util.List;
  * JpaRepository supports save(), findOne(), findById(), findAll(), count(), delete(), and deleteById().
  */
 
+@Repository
 public interface InventoryRepository extends JpaRepository<Inventory, Long> {
 
     /**
