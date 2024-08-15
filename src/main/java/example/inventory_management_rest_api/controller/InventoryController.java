@@ -1,7 +1,7 @@
 package example.inventory_management_rest_api.controller;
 
 import example.inventory_management_rest_api.model.Inventory;
-import example.inventory_management_rest_api.repository.InventoryRepository;
+import example.inventory_management_rest_api.service.InventoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,7 +22,7 @@ import java.util.Optional;
 public class InventoryController {
 
     @Autowired
-    InventoryRepository inventoryRepository;
+    InventoryService service;
 
     /**
      * Get all items.
@@ -37,9 +37,9 @@ public class InventoryController {
 
             // If user did not provide a name, add all items to the list
             if (name == null) {
-                inventoryRepository.findAll().forEach(inventories::add);
+                service.findAll().forEach(inventories::add);
             } else { // else add the ones containing the given text
-                inventoryRepository.findByNameContaining(name).forEach(inventories::add);
+                service.findByNameContaining(name).forEach(inventories::add);
             }
 
             // If the list is empty, return no content
@@ -59,9 +59,9 @@ public class InventoryController {
      * @param id id to search in Inventory
      * @return inventory item with the given id; return not found if given id not exists
      */
-    @GetMapping("inventory/{id}")
+    @GetMapping("/inventory/{id}")
     public ResponseEntity<Inventory> getInventoryById(@PathVariable("id") long id) {
-        Optional<Inventory> inventoryData = inventoryRepository.findById(id);
+        Optional<Inventory> inventoryData = service.findById(id);
 
         // Check whether the id exists in the Inventory
         if (inventoryData.isPresent()) {
@@ -80,7 +80,7 @@ public class InventoryController {
     @PostMapping("/inventory")
     public ResponseEntity<Inventory> createInventory(@RequestBody Inventory inventory) {
         try {
-            Inventory _inventory = inventoryRepository
+            Inventory _inventory = service
                     .save(new Inventory(inventory.getName(), inventory.getDescription(),
                             inventory.getUnitPrice(), inventory.getQuantity(), inventory.getCategory(),
                             inventory.isOnSale()));
@@ -99,7 +99,7 @@ public class InventoryController {
      */
     @PutMapping("/inventory/{id}")
     public ResponseEntity<Inventory> updateInventory(@PathVariable("id") long id, @RequestBody Inventory inventory) {
-        Optional<Inventory> inventoryData = inventoryRepository.findById(id);
+        Optional<Inventory> inventoryData = service.findById(id);
         if (inventoryData.isPresent()) {
             Inventory _inventory = inventoryData.get();
             _inventory.setName(inventory.getName());
@@ -108,7 +108,7 @@ public class InventoryController {
             _inventory.setQuantity(inventory.getQuantity());
             _inventory.setCategory(inventory.getCategory());
             _inventory.setOnSale(inventory.isOnSale());
-            return new ResponseEntity<>(inventoryRepository.save(_inventory), HttpStatus.OK);
+            return new ResponseEntity<>(service.update(_inventory), HttpStatus.OK);
         } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
@@ -123,7 +123,7 @@ public class InventoryController {
     @DeleteMapping("/inventory/{id}")
     public ResponseEntity<HttpStatus> deleteInventory(@PathVariable("id") long id) {
         try {
-            inventoryRepository.deleteById(id);
+            service.deleteById(id);
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -138,7 +138,7 @@ public class InventoryController {
     @DeleteMapping("/inventory")
     public ResponseEntity<HttpStatus> deleteAllInventory() {
         try {
-            inventoryRepository.deleteAll();
+            service.deleteAll();
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -153,7 +153,7 @@ public class InventoryController {
     @GetMapping("/inventory/onsale")
     public ResponseEntity<List<Inventory>> getInventoryOnSale() {
         try {
-            List<Inventory> inventories = inventoryRepository.findByOnSale(true);
+            List<Inventory> inventories = service.findByOnSale(true);
 
             if (inventories.isEmpty()) {
                 return new ResponseEntity<>(HttpStatus.NO_CONTENT);
