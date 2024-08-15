@@ -2,13 +2,17 @@ package example.inventory_management_rest_api.model;
 
 import jakarta.persistence.*;
 
+import java.io.Serializable;
+
 /**
  * The Inventory data model class corresponds to entity and table inventory.
  */
 
 @Entity
 @Table(name = "inventory")
-public class Inventory {
+public class Inventory implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
