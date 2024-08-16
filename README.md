@@ -13,7 +13,7 @@ This project creates backend REST APIs for performing CRUD operations in an inve
 ## Features
 1. **RESTful API**: Developed using Spring Boot and Spring Data JPA/Hibernate for seamless CRUD operations and custom finder methods on inventory items stored in PostgreSQL.
 2. **Caching**: Integrated with Redis to accelerate data retrieval, improving response times for frequently accessed data.
-3. **Unit Testing**: Controller is unit tested using JUnit and Mockito; JPA repositories are unit tested using @DataJpaTest to ensure reliable and robust database interactions.
+3. **Unit Testing**: Controller is unit tested using @WebMvcTest and Mockito; JPA repositories are unit tested using @DataJpaTest to ensure reliable and robust database interactions.
 
 ## Data Model
 | Field        | Data Type | Description                              |
@@ -43,3 +43,9 @@ This project creates backend REST APIs for performing CRUD operations in an inve
 1. [x] Add user authentication for secured API access.
 2. [x] Implement pagination for large datasets in retrieval APIs.
 3. [x] Expand the caching mechanism to other API operations.
+
+## References
+1. https://www.bezkoder.com/spring-boot-postgresql-example/
+2. https://www.bezkoder.com/spring-boot-redis-cache-example/
+3. https://bezkoder.com/spring-boot-unit-test-jpa-repo-datajpatest/
+4. https://www.bezkoder.com/spring-boot-webmvctest/
