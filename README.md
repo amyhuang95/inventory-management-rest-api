@@ -1,8 +1,6 @@
 # Inventory Management Rest API
 
-## Overview
 This project creates backend REST APIs for performing CRUD operations in an inventory management system. The system leverages Redis to reduce database load and speed up data retrieval.
-
 
 ## Tech Stack
 * **Server**: Java + Spring Boot
