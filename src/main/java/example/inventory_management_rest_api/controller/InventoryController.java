@@ -1,5 +1,6 @@
 package example.inventory_management_rest_api.controller;
 
+import example.inventory_management_rest_api.exception.ResourceNotFoundException;
 import example.inventory_management_rest_api.model.Inventory;
 import example.inventory_management_rest_api.service.InventoryService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,7 +10,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 
 /**
@@ -32,25 +32,22 @@ public class InventoryController {
      */
     @GetMapping("/inventory")
     public ResponseEntity<List<Inventory>> getAllInventory(@RequestParam(required = false) String name) {
-        try {
-            List<Inventory> inventories = new ArrayList<Inventory>();
 
-            // If user did not provide a name, add all items to the list
-            if (name == null) {
-                service.findAll().forEach(inventories::add);
-            } else { // else add the ones containing the given text
-                service.findByNameContaining(name).forEach(inventories::add);
-            }
+        List<Inventory> inventories = new ArrayList<Inventory>();
 
-            // If the list is empty, return no content
-            if (inventories.isEmpty()) {
-                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-            }
-
-            return new ResponseEntity<>(inventories, HttpStatus.OK);
-        } catch (Exception e) {
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        // If user did not provide a name, add all items to the list
+        if (name == null) {
+            service.findAll().forEach(inventories::add);
+        } else { // else add the ones containing the given text
+            service.findByNameContaining(name).forEach(inventories::add);
         }
+
+        // If the list is empty, return no content
+        if (inventories.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        }
+
+        return new ResponseEntity<>(inventories, HttpStatus.OK);
     }
 
     /**
@@ -61,14 +58,9 @@ public class InventoryController {
      */
     @GetMapping("/inventory/{id}")
     public ResponseEntity<Inventory> getInventoryById(@PathVariable("id") long id) {
-        Optional<Inventory> inventoryData = service.findById(id);
+        Inventory inventory = service.findById(id).orElseThrow(() -> new ResourceNotFoundException("Inventory not found with id " + id));
 
-        // Check whether the id exists in the Inventory
-        if (inventoryData.isPresent()) {
-            return new ResponseEntity<>(inventoryData.get(), HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+        return new ResponseEntity<>(inventory, HttpStatus.OK);
     }
 
     /**
@@ -79,15 +71,16 @@ public class InventoryController {
      */
     @PostMapping("/inventory")
     public ResponseEntity<Inventory> createInventory(@RequestBody Inventory inventory) {
-        try {
-            Inventory _inventory = service
-                    .save(new Inventory(inventory.getName(), inventory.getDescription(),
-                            inventory.getUnitPrice(), inventory.getQuantity(), inventory.getCategory(),
-                            inventory.isOnSale()));
-            return new ResponseEntity<>(_inventory, HttpStatus.CREATED);
-        } catch (Exception e) {
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+
+        Inventory _inventory = service.save(new Inventory(
+                inventory.getName(),
+                inventory.getDescription(),
+                inventory.getUnitPrice(),
+                inventory.getQuantity(),
+                inventory.getCategory(),
+                inventory.isOnSale()));
+
+        return new ResponseEntity<>(_inventory, HttpStatus.CREATED);
     }
 
     /**
@@ -99,19 +92,16 @@ public class InventoryController {
      */
     @PutMapping("/inventory/{id}")
     public ResponseEntity<Inventory> updateInventory(@PathVariable("id") long id, @RequestBody Inventory inventory) {
-        Optional<Inventory> inventoryData = service.findById(id);
-        if (inventoryData.isPresent()) {
-            Inventory _inventory = inventoryData.get();
-            _inventory.setName(inventory.getName());
-            _inventory.setDescription(inventory.getDescription());
-            _inventory.setUnitPrice(inventory.getUnitPrice());
-            _inventory.setQuantity(inventory.getQuantity());
-            _inventory.setCategory(inventory.getCategory());
-            _inventory.setOnSale(inventory.isOnSale());
-            return new ResponseEntity<>(service.update(_inventory), HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+        Inventory _inventory = service.findById(id).orElseThrow(() -> new ResourceNotFoundException("Inventory not found with id " + id));
+
+        _inventory.setName(inventory.getName());
+        _inventory.setDescription(inventory.getDescription());
+        _inventory.setUnitPrice(inventory.getUnitPrice());
+        _inventory.setQuantity(inventory.getQuantity());
+        _inventory.setCategory(inventory.getCategory());
+        _inventory.setOnSale(inventory.isOnSale());
+
+        return new ResponseEntity<>(service.update(_inventory), HttpStatus.OK);
     }
 
     /**
@@ -122,12 +112,9 @@ public class InventoryController {
      */
     @DeleteMapping("/inventory/{id}")
     public ResponseEntity<HttpStatus> deleteInventory(@PathVariable("id") long id) {
-        try {
-            service.deleteById(id);
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        service.deleteById(id);
+
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     /**
@@ -137,12 +124,8 @@ public class InventoryController {
      */
     @DeleteMapping("/inventory")
     public ResponseEntity<HttpStatus> deleteAllInventory() {
-        try {
-            service.deleteAll();
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        service.deleteAll();
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     /**
@@ -152,16 +135,12 @@ public class InventoryController {
      */
     @GetMapping("/inventory/onsale")
     public ResponseEntity<List<Inventory>> getInventoryOnSale() {
-        try {
-            List<Inventory> inventories = service.findByOnSale(true);
+        List<Inventory> inventories = service.findByOnSale(true);
 
-            if (inventories.isEmpty()) {
-                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-            }
-            return new ResponseEntity<>(inventories, HttpStatus.OK);
-        } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        if (inventories.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }
+        return new ResponseEntity<>(inventories, HttpStatus.OK);
     }
 
 }
